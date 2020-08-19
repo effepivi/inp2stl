@@ -63,16 +63,22 @@ def readInpFile(anInputFileName):
     # Store the record type, e.g. NODE for vertices, or ELEMENT, TYPE=C3D4 for tetrahedrons
     record_type = None;
 
-    # Read all the lines of the file
-    for line in input_file:
+    vertex_set_offset = 0;
 
+    # Read all the lines of the file
+    for line_no, line in enumerate(input_file):
+
+        # print(line_no)
         # Change of record type
         if line[0] == '*':
             if line[1] != '*':
-                record_type = line;
+                record_type = line.upper();
 
+                # This is a new part
+                if record_type[:len("*PART")] == "*PART":
+                    vertex_set_offset = len(vertex_set);
                 # This is a new mesh
-                if record_type[:len("*ELEMENT, TYPE=C3D4")] == "*ELEMENT, TYPE=C3D4":
+                elif record_type[:len("*ELEMENT, TYPE=C3D4")] == "*ELEMENT, TYPE=C3D4":
                     triangle_index_set.append([]);
 
                     # Material properties are included
@@ -84,7 +90,7 @@ def readInpFile(anInputFileName):
 
         elif record_type[:len("*HEADING")] == "*HEADING":
             pass;
-        elif record_type[:len("*NODE")] == "*NODE":
+        elif record_type[:len("*NODE")] == "*NODE" and record_type[:len("*NODE OUTPUT")] != "*NODE OUTPUT":
             vertex = line.split(',');
             if len(vertex) == 4:
                 vertex_set.append([float(vertex[1]),
@@ -96,21 +102,21 @@ def readInpFile(anInputFileName):
         elif record_type[:len("*ELEMENT, TYPE=C3D4")] == "*ELEMENT, TYPE=C3D4":
             indices = line.split(',');
             if len(indices) == 5:
-                triangle_index_set[-1].append([int(indices[1]) - 1,
-                    int(indices[2]) - 1,
-                    int(indices[3]) - 1]);
+                triangle_index_set[-1].append([int(indices[1]) - 1 + vertex_set_offset,
+                    int(indices[2]) - 1 + vertex_set_offset,
+                    int(indices[3]) - 1 + vertex_set_offset]);
 
-                triangle_index_set[-1].append([int(indices[1]) - 1,
-                    int(indices[4]) - 1,
-                    int(indices[2]) - 1]);
+                triangle_index_set[-1].append([int(indices[1]) - 1 + vertex_set_offset,
+                    int(indices[4]) - 1 + vertex_set_offset,
+                    int(indices[2]) - 1 + vertex_set_offset]);
 
-                triangle_index_set[-1].append([int(indices[4]) - 1,
-                    int(indices[3]) - 1,
-                    int(indices[2]) - 1]);
+                triangle_index_set[-1].append([int(indices[4]) - 1 + vertex_set_offset,
+                    int(indices[3]) - 1 + vertex_set_offset,
+                    int(indices[2]) - 1 + vertex_set_offset]);
 
-                triangle_index_set[-1].append([int(indices[4]) - 1,
-                    int(indices[1]) - 1,
-                    int(indices[3]) - 1]);
+                triangle_index_set[-1].append([int(indices[4]) - 1 + vertex_set_offset,
+                    int(indices[1]) - 1 + vertex_set_offset,
+                    int(indices[3]) - 1 + vertex_set_offset]);
             else:
                 raise Exception("Cannot interpret this line: ", line);
         # Ignore the beam type
