@@ -41,20 +41,11 @@ gvxr.setWindowSize(512, 512);
 print("Load the data");
 #gvxr.loadSceneGraph("DogBone.stl", "m");
 
-gvxr.loadMeshFile("W",
-                  "CCFE_W-Cu-CuCrZr_08bit_v11_Cleaned_10pc-TUNGSTEN-1-bin.stl",
+gvxr.loadMeshFile("male_model",
+                  "male_model-bin.stl",
                   "mm")
 
-gvxr.loadMeshFile("CUCRZR",
-                  "CCFE_W-Cu-CuCrZr_08bit_v11_Cleaned_10pc-CUCRZR-2-bin.stl",
-                  "mm")
-
-gvxr.loadMeshFile("CU",
-                  "CCFE_W-Cu-CuCrZr_08bit_v11_Cleaned_10pc-CU-3-bin.stl",
-                  "mm")
-gvxr.setHU("W", 1000);
-gvxr.setHU("CUCRZR", 100);
-gvxr.setHU("CU", 10);
+gvxr.setHU("male_model", 1000);
 
 
 min_corner = None;
