@@ -4,8 +4,10 @@
 import argparse  # Process the cmd line
 import os # To create directories if needed
 import math # For sqrt
+import copy # For deepcopy
 import numpy as np
 
+NoneType = type(None);
 
 # From https://stackoverflow.com/questions/15008758/parsing-boolean-values-with-argparse
 def str2bool(v):
@@ -47,7 +49,7 @@ def isFileExtensionINF(anInputFileName):
 def isFileExtensionSTL(anOutputFileName):
     return anOutputFileName[len(anOutputFileName) - 4:].lower() == ".stl";
 
-def readInpFile(anInputFileName):
+def readInpFile(anInputFileName, aFlipNormalVectorFlag = False):
 
     # Open the file if it is an INF file
     if not isFileExtensionINF(anInputFileName):
@@ -130,9 +132,25 @@ def readInpFile(anInputFileName):
             pass;
             # raise Exception("Does not know how to interpret this line: " + line);
 
+    if aFlipNormalVectorFlag:
+        temp = [];
+
+        for triangle_set in triangle_index_set:
+
+            temp.append([]);
+
+            for triangle in triangle_set:
+                p1_index = triangle[0];
+                p3_index = triangle[1];
+                p2_index = triangle[2];
+
+                temp[-1].append([p1_index, p2_index, p3_index]);
+
+        triangle_index_set = temp;
+
     return vertex_set, triangle_index_set, material_set
 
-def writeStlFile(anOutputFileName, aVertexSet, aTriangleIndexSet, aFlipNormalVectorFlag):
+def writeStlFile(anOutputFileName, aVertexSet, aTriangleIndexSet):
 
     # Open the file if it is an STL file
     if not isFileExtensionSTL(anOutputFileName):
@@ -154,11 +172,6 @@ def writeStlFile(anOutputFileName, aVertexSet, aTriangleIndexSet, aFlipNormalVec
         p3_index = triangle[2];
         p3 = aVertexSet[p3_index];
 
-        if aFlipNormalVectorFlag:
-            temp = p2;
-            p2 = p3;
-            p3 = temp;
-
         normal = computeNormal(p1, p2, p3);
 
         output_file.write("\tfacet normal " + str(normal[0]) + ' ' + str(normal[1]) + ' ' + str(normal[2]) + "\n");
@@ -177,6 +190,53 @@ def writeStlFile(anOutputFileName, aVertexSet, aTriangleIndexSet, aFlipNormalVec
 
     output_file.write("endsolid\n");
 
+def getMeshBBox(vertex_set, triangle_index_set):
+
+    min_corner = None;
+    max_corner = None;
+
+    for triangle in triangle_index_set:
+        for vertex_id in triangle:
+
+            if isinstance(min_corner, NoneType):
+                min_corner = copy.deepcopy(vertex_set[vertex_id]);
+            else:
+                min_corner[0] = min(min_corner[0], vertex_set[vertex_id][0]);
+                min_corner[1] = min(min_corner[1], vertex_set[vertex_id][1]);
+                min_corner[2] = min(min_corner[2], vertex_set[vertex_id][2]);
+
+            if isinstance(max_corner, NoneType):
+                max_corner = copy.deepcopy(vertex_set[vertex_id]);
+            else:
+                max_corner[0] = max(max_corner[0], vertex_set[vertex_id][0]);
+                max_corner[1] = max(max_corner[1], vertex_set[vertex_id][1]);
+                max_corner[2] = max(max_corner[2], vertex_set[vertex_id][2]);
+
+    return min_corner, max_corner;
+
+def getBBox(vertex_set, triangle_index_set):
+
+    # Get the bounding box
+    if len(triangle_index_set) == 1:
+        min_corner, max_corner = getMeshBBox(vertex_set, triangle_index_set[0]);
+    else:
+        for i, triangle_index in enumerate(triangle_index_set):
+
+            if i == 0:
+                min_corner, max_corner = getMeshBBox(vertex_set, triangle_index);
+            else:
+                temp_min, temp_max = getMeshBBox(vertex_set, triangle_index);
+
+                min_corner[0] = min(min_corner[0], temp_min[0]);
+                min_corner[1] = min(min_corner[1], temp_min[1]);
+                min_corner[2] = min(min_corner[2], temp_min[2]);
+
+                max_corner[0] = max(max_corner[0], temp_max[0]);
+                max_corner[1] = max(max_corner[1], temp_max[1]);
+                max_corner[2] = max(max_corner[2], temp_max[2]);
+
+    return min_corner, max_corner;
+
 if __name__ == '__main__':
 
     # Load the arguments from the command line
@@ -188,13 +248,25 @@ if __name__ == '__main__':
         print("Flip normal vectors");
 
     # Load the data
-    vertex_set, triangle_index_set, material_set = readInpFile(args.input[0]);
+    vertex_set, triangle_index_set, material_set = readInpFile(args.input[0], args.flip);
     print("len(vertex_set)", len(vertex_set))
     print("Number of meshes in", args.input[0], ": ", len(triangle_index_set));
 
+    # Get the bounding box
+    min_corner, max_corner = getBBox(vertex_set, triangle_index_set);
+
+    # Compute the bounding box
+    bbox_range = [max_corner[0] - min_corner[0],
+        max_corner[1] - min_corner[1],
+        max_corner[2] - min_corner[2]];
+
+    print("X Range:", min_corner[0], "to", max_corner[0], "(delta:", bbox_range[0], ")")
+    print("Y Range:", min_corner[1], "to", max_corner[1], "(delta:", bbox_range[1], ")")
+    print("Z Range:", min_corner[2], "to", max_corner[2], "(delta:", bbox_range[2], ")")
+
     # There is only one mesh in the INP file
     if len(triangle_index_set) == 1:
-        writeStlFile(args.output[0], vertex_set, triangle_index_set[0], args.flip);
+        writeStlFile(args.output[0], vertex_set, triangle_index_set[0]);
     else:
 
         for i, triangle_index in enumerate(triangle_index_set):
@@ -208,4 +280,4 @@ if __name__ == '__main__':
                 output_file_name = output_file_prefix + "-" + str(i + 1) + ".stl";
 
             print("Output files:", output_file_name);
-            writeStlFile(output_file_name, vertex_set, triangle_index, args.flip);
+            writeStlFile(output_file_name, vertex_set, triangle_index);
