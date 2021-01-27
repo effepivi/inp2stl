@@ -3,7 +3,6 @@
 
 import argparse  # Process the cmd line
 import math # For sqrt
-import numpy as np
 
 
 # From https://stackoverflow.com/questions/15008758/parsing-boolean-values-with-argparse
