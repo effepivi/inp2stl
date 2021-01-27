@@ -2,7 +2,7 @@
 Python script to convert a file in Abacus' INP format into the STL (STereoLithography) file format
 
 
-## Requirements:
+## Requirements
 
 Install the requirements if needed using:
 
@@ -10,7 +10,7 @@ Install the requirements if needed using:
 $ python3 -m pip install --user numpy
 ```
 
-## Usage:
+## Usage
 
 ```bash
 inp2stl.py [-h] --input INPUT --output OUTPUT [--flip [FLIP]]
@@ -24,9 +24,9 @@ optional arguments:
   --flip [FLIP]    Flip normal vectors.
 ```
 
-## Example:
+## Example
 
-- Download an INP file, e.g. the male_model from Harsha Teja Garimella (2018) available on [figshare](https://figshare.com/) at https://doi.org/10.6084/m9.figshare.5808792.v1:
+- Download an INP file, e.g. the male_model from Harsha Teja Garimella (2018) available on [figshare](https://figshare.com/) at [https://doi.org/10.6084/m9.figshare.5808792.v1](https://doi.org/10.6084/m9.figshare.5808792.v1):
 
 ```bash
 $ wget https://ndownloader.figshare.com/files/10269141
