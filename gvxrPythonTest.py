@@ -10,7 +10,6 @@ try:
     matplotlib.use("TkAgg")
 
     import matplotlib.pyplot as plt
-    import matplotlib.image as mpimg
     from matplotlib.colors import LogNorm
     from matplotlib.colors import PowerNorm
     use_matplotlib = True;
