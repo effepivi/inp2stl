@@ -1,4 +1,7 @@
 # inp2stl
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/858e1879b1a742caa0eeeeae0f2fad26)](https://app.codacy.com/gh/effepivi/inp2stl?utm_source=github.com&utm_medium=referral&utm_content=effepivi/inp2stl&utm_campaign=Badge_Grade_Settings)
+
 Python script to convert a file in Abacus' INP format into the STL (STereoLithography) file format
 
 ## Requirements
