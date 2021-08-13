@@ -2,10 +2,8 @@
 
 
 import argparse  # Process the cmd line
-import os # To create directories if needed
 import math # For sqrt
 import copy # For deepcopy
-import numpy as np
 
 NoneType = type(None);
 
@@ -68,9 +66,8 @@ def readInpFile(anInputFileName, aFlipNormalVectorFlag = False):
     vertex_set_offset = 0;
 
     # Read all the lines of the file
-    for line_no, line in enumerate(input_file):
+    for line in input_file:
 
-        # print(line_no)
         # Change of record type
         if line[0] == '*':
             if line[1] != '*':
